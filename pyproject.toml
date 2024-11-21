@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "takemehome"
+version = "0.1.0"
+description = "Take Me Home desktop app v2"
+authors = ["Haley Morgan <haleymorgan3264@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.14"
+pyside6 = "^6.8.0.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pyinstaller = "^6.11.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
