@@ -2,13 +2,15 @@ import sys
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
+    QVBoxLayout,
+    QHBoxLayout,
+    QWidget,
     QPushButton,
     QLabel,
-    QVBoxLayout,
-    QWidget,
-    QFileDialog,
+    QLineEdit,
+    QTableWidget,
+    QTableWidgetItem,
 )
-from PySide6.QtGui import QPixmap
 from takemehome.database import save_person, get_people
 
 
@@ -22,32 +24,49 @@ class MainWindow(QMainWindow):
         # Main layout
         layout = QVBoxLayout()
 
-        self.label = QLabel("Person Details Viewer")
-        layout.addWidget(self.label)
+        # Search section
+        search_layout = QHBoxLayout()
 
-        self.image_label = QLabel()
-        layout.addWidget(self.image_label)
+        self.name_input = QLineEdit()
+        self.name_input.setPlaceholderText("Enter name")
+        search_layout.addWidget(self.name_input)
 
-        # Load image button
-        self.load_button = QPushButton("Load Image")
-        self.load_button.clicked.connect(self.load_image)
-        layout.addWidget(self.load_button)
+        self.age_input = QLineEdit()
+        self.age_input.setPlaceholderText("Enter age")
+        search_layout.addWidget(self.age_input)
 
-        # Add person button
-        self.add_button = QPushButton("Add Person")
-        self.add_button.clicked.connect(self.add_person)
-        layout.addWidget(self.add_button)
+        self.search_button = QPushButton("Search")
+        self.search_button.clicked.connect(self.search_people)
+        search_layout.addWidget(self.search_button)
+
+        layout.addLayout(search_layout)
+
+        # Table section for displaying results
+        self.results_table = QTableWidget()
+        self.results_table.setColumnCount(3)
+        self.results_table.setHorizontalHeaderLabels(["ID", "Name", "Age"])
+        layout.addWidget(self.results_table)
 
         # Container widget
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
 
-    def load_image(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Select an Image")
-        if file_path:
-            pixmap = QPixmap(file_path)
-            self.image_label.setPixmap(pixmap.scaled(200, 200))  # Resize for display
+    def search_people(self):
+        """Search for people in the database based on name or age."""
+        name_query = self.name_input.text()
+        age_query = self.age_input.text()
+
+        # Query the database
+        results = get_people(name=name_query, age=age_query)
+
+        # Populate the results table
+        self.results_table.setRowCount(0)  # Clear previous results
+        for row_idx, (person_id, name, age, _) in enumerate(results):
+            self.results_table.insertRow(row_idx)
+            self.results_table.setItem(row_idx, 0, QTableWidgetItem(str(person_id)))
+            self.results_table.setItem(row_idx, 1, QTableWidgetItem(name))
+            self.results_table.setItem(row_idx, 2, QTableWidgetItem(str(age)))
 
     def add_person(self):
         # Example of adding a person (extend with input forms as needed)

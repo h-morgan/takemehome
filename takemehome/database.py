@@ -33,10 +33,21 @@ def save_person(name, age, photo_path):
     conn.close()
 
 
-def get_people():
+def get_people(name=None, age=None):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM people")
+
+    query = "SELECT * FROM people WHERE 1=1"
+    params = []
+
+    if name:
+        query += " AND name LIKE ?"
+        params.append(f"%{name}%")
+    if age:
+        query += " AND age = ?"
+        params.append(age)
+
+    cursor.execute(query, params)
     results = cursor.fetchall()
     conn.close()
     return results
