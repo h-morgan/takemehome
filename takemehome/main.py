@@ -1,4 +1,4 @@
-from takemehome.ui import run_app
+from takemehome.ui.home import run_app
 from takemehome.database import init_db
 
 if __name__ == "__main__":
