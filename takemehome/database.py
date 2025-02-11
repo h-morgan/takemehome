@@ -16,6 +16,20 @@ def init_db():
         "age": "INTEGER",
         "hair": "TEXT",
         "eyes": "TEXT",
+        "race": "TEXT",
+        "sex": "TEXT",
+        "height": "INTEGER",
+        "weight": "INTEGER",
+        "street": "TEXT",
+        "city": "TEXT",
+        "state": "TEXT",
+        "zipcode": "INTEGER",
+        "special_bracelet_id": "TEXT",
+        "organization": "TEXT",
+        "record_type": "TEXT",
+        "picture_date": "TEXT",
+        "age_in_picture": "INTEGER",
+        "photo_path": "TEXT",
     }
 
     # Ensure the table exists
@@ -67,7 +81,11 @@ def search_people(dob=None, race=None, sex=None, hair=None, eyes=None):
     conn = sqlite3.connect("people.db")
     cursor = conn.cursor()
 
-    query = "SELECT * FROM people WHERE 1=1"
+    query = """
+    SELECT name_to_call_me, first_name, middle_name, last_name, dob, age, hair, eyes, race
+    FROM people
+    WHERE 1=1
+    """
     params = []
 
     if dob:
