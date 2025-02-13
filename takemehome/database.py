@@ -1,4 +1,5 @@
 import sqlite3
+from loguru import logger
 
 
 def init_db():
@@ -103,6 +104,8 @@ def search_people(dob=None, race=None, sex=None, hair=None, eyes=None):
     if eyes:
         query += " AND eyes LIKE ?"
         params.append(f"%{eyes}%")
+
+    logger.debug(query)
 
     cursor.execute(query, params)
     results = cursor.fetchall()
