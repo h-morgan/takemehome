@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QFileDialog,
 )
+from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 import takemehome.database as db
 import shutil
@@ -27,7 +28,7 @@ class AddPersonWindow(QWidget):
 
         form_layout = QGridLayout()
         form_layout.setHorizontalSpacing(10)
-        form_layout.setVerticalSpacing(10)
+        form_layout.setVerticalSpacing(15)
 
         # Form Fields
         self.name_to_call_me = QLineEdit()
@@ -77,13 +78,24 @@ class AddPersonWindow(QWidget):
         form_layout.addWidget(QLabel("Sex:"), 4, 2)
         form_layout.addWidget(self.sex, 4, 3)
 
+        self.height = QLineEdit()
+        self.height.setPlaceholderText("Inches")
+        form_layout.addWidget(QLabel("Height:"), 5, 0)
+        form_layout.addWidget(self.height, 5, 1)
+
+        self.weight = QLineEdit()
+        self.weight.setPlaceholderText("Pounds")
+        form_layout.addWidget(QLabel("Weight:"), 5, 2)
+        form_layout.addWidget(self.weight, 5, 3)
+
         self.street = QLineEdit()
-        form_layout.addWidget(QLabel("Street:"), 5, 0)
-        form_layout.addWidget(self.street, 5, 1, 1, 5)
+        self.street.setPlaceholderText("Street address")
+        form_layout.addWidget(QLabel("Address:"), 6, 0)
+        form_layout.addWidget(self.street, 6, 1, 1, 5)
 
         self.city = QLineEdit()
-        form_layout.addWidget(QLabel("City:"), 6, 0)
-        form_layout.addWidget(self.city, 6, 1)
+        form_layout.addWidget(QLabel("City:"), 7, 0)
+        form_layout.addWidget(self.city, 7, 1)
 
         self.state = QComboBox()
         self.state.addItems(
@@ -141,36 +153,36 @@ class AddPersonWindow(QWidget):
                 "WY",
             ]
         )
-        form_layout.addWidget(QLabel("State:"), 6, 2)
-        form_layout.addWidget(self.state, 6, 3)
+        form_layout.addWidget(QLabel("State:"), 7, 2)
+        form_layout.addWidget(self.state, 7, 3)
 
         self.zipcode = QLineEdit()
-        form_layout.addWidget(QLabel("Zip Code:"), 6, 4)
-        form_layout.addWidget(self.zipcode, 6, 5)
+        form_layout.addWidget(QLabel("Zip Code:"), 7, 4)
+        form_layout.addWidget(self.zipcode, 7, 5)
 
         self.special_bracelet_id = QLineEdit()
         self.special_bracelet_id.setPlaceholderText("Special Bracelet ID")
-        form_layout.addWidget(QLabel("Special Bracelet ID:"), 7, 0)
-        form_layout.addWidget(self.special_bracelet_id, 7, 1, 1, 5)
+        form_layout.addWidget(QLabel("Special Bracelet ID:"), 8, 0)
+        form_layout.addWidget(self.special_bracelet_id, 8, 1, 1, 5)
 
         self.organization = QLineEdit()
         self.organization.setPlaceholderText("Organization")
-        form_layout.addWidget(QLabel("Organization:"), 8, 0)
-        form_layout.addWidget(self.organization, 8, 1, 1, 5)
+        form_layout.addWidget(QLabel("Organization:"), 9, 0)
+        form_layout.addWidget(self.organization, 9, 1, 1, 5)
 
         self.record_type = QLineEdit()
         self.record_type.setPlaceholderText("Record Type")
-        form_layout.addWidget(QLabel("Record Type:"), 9, 0)
-        form_layout.addWidget(self.record_type, 9, 1, 1, 5)
+        form_layout.addWidget(QLabel("Record Type:"), 10, 0)
+        form_layout.addWidget(self.record_type, 10, 1, 1, 5)
 
         self.picture_date = QLineEdit()
         self.picture_date.setPlaceholderText("YYYY-MM-DD")
-        form_layout.addWidget(QLabel("Picture Date:"), 10, 0)
-        form_layout.addWidget(self.picture_date, 10, 1)
+        form_layout.addWidget(QLabel("Picture Date:"), 11, 0)
+        form_layout.addWidget(self.picture_date, 11, 1)
 
         self.age_in_picture = QLineEdit()
-        form_layout.addWidget(QLabel("Age in Picture:"), 10, 2)
-        form_layout.addWidget(self.age_in_picture, 10, 3)
+        form_layout.addWidget(QLabel("Age in Picture:"), 11, 2)
+        form_layout.addWidget(self.age_in_picture, 11, 3)
 
         self.photo_path = QLineEdit()
         self.photo_path.setReadOnly(True)
@@ -179,13 +191,18 @@ class AddPersonWindow(QWidget):
 
         photo_layout = QHBoxLayout()
         photo_layout.addWidget(self.browse_button)
-        form_layout.addWidget(QLabel("Photo:"), 11, 0)
-        form_layout.addLayout(photo_layout, 11, 1, 1, 2)
+        form_layout.addWidget(QLabel("Photo:"), 12, 0)
+        form_layout.addLayout(photo_layout, 12, 1, 1, 2)
 
         self.photo_path = QLineEdit()
         self.photo_path.setPlaceholderText("Photo Path")
-        form_layout.addWidget(QLabel("Photo Path:"), 12, 0)
-        form_layout.addWidget(self.photo_path, 12, 1, 1, 5)
+        form_layout.addWidget(QLabel("Photo Path:"), 13, 0)
+        form_layout.addWidget(self.photo_path, 13, 1, 1, 5)
+
+        # Thumbnail Display
+        self.photo_thumbnail = QLabel(self)
+        self.photo_thumbnail.setFixedSize(100, 100)  # Set size for thumbnail
+        form_layout.addWidget(self.photo_thumbnail, 14, 2, 2, 2)
 
         layout.addLayout(form_layout)
 
@@ -212,6 +229,12 @@ class AddPersonWindow(QWidget):
             shutil.copy(file_path, new_path)
 
             self.photo_path.setText(new_path)
+
+            # Display the image as a thumbnail
+            pixmap = QPixmap(new_path)
+            self.photo_thumbnail.setPixmap(
+                pixmap.scaled(100, 100)
+            )  # Scale image to fit the QLabel
 
     def save_person(self):
 
