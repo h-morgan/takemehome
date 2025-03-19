@@ -68,8 +68,8 @@ def add_person(person_data):
 
     cursor.execute(
         """
-    INSERT INTO people (name_to_call_me, first_name, middle_name, last_name, dob, age, hair, eyes)
-    VALUES (:name_to_call_me, :first_name, :middle_name, :last_name, :dob, :age, :hair, :eyes)
+    INSERT INTO people (name_to_call_me, first_name, middle_name, last_name, dob, age, hair, eyes, race, sex, height, weight, street, city, state, zipcode, special_bracelet_id, organization, record_type, picture_date, age_in_picture, photo_path)
+    VALUES (:name_to_call_me, :first_name, :middle_name, :last_name, :dob, :age, :hair, :eyes, :race, :sex, :height, :weight, :street, :city, :state, :zipcode, :special_bracelet_id, :organization, :record_type, :picture_date, :age_in_picture, :photo_path)
     """,
         person_data,
     )
@@ -83,9 +83,9 @@ def search_people(dob=None, race=None, sex=None, hair=None, eyes=None):
     cursor = conn.cursor()
 
     query = """
-    SELECT name_to_call_me, first_name, middle_name, last_name, dob, age, hair, eyes, race
+    SELECT name_to_call_me, first_name, middle_name, last_name, dob, age, hair, eyes, race, sex, height, weight, street, city, state, zipcode, special_bracelet_id, organization, record_type, picture_date, age_in_picture, photo_path
     FROM people
-    WHERE 1=1
+    where first_name != ''
     """
     params = []
 
@@ -100,10 +100,10 @@ def search_people(dob=None, race=None, sex=None, hair=None, eyes=None):
         params.append(sex)
     if hair:
         query += " AND hair LIKE ?"
-        params.append(f"%{hair}%")
+        params.append(hair)
     if eyes:
         query += " AND eyes LIKE ?"
-        params.append(f"%{eyes}%")
+        params.append(eyes)
 
     logger.debug(query)
 
