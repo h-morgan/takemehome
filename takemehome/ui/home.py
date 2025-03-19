@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
     QCheckBox,
     QComboBox,
-    QMessageBox,
+    QTabWidget,
 )
 from PySide6.QtCore import Qt
 import takemehome.database as db
@@ -26,6 +26,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Take Me Home")
         self.setGeometry(100, 100, 800, 600)
 
+        self.create_menu_bar()
+
         # Central Widget
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -33,6 +35,13 @@ class MainWindow(QMainWindow):
         # Main Layout
         main_layout = QVBoxLayout()
         central_widget.setLayout(main_layout)
+
+        # Tab Widget
+        self.tab_widget = QTabWidget()
+        main_layout.addWidget(self.tab_widget)
+
+        # Create Tabs
+        self.create_tabs()
 
         # Search Area
         search_layout = QHBoxLayout()
@@ -82,19 +91,32 @@ class MainWindow(QMainWindow):
 
         # Table for Results
         self.results_table = QTableWidget()
-        self.results_table.setColumnCount(8)
-        self.results_table.setHorizontalHeaderLabels(
-            [
-                "Name to Call Me",
-                "First Name",
-                "Middle Name",
-                "Last Name",
-                "DOB",
-                "Age",
-                "Hair",
-                "Eyes",
-            ]
-        )
+        column_headers = [
+            "Name to Call Me",
+            "First Name",
+            "Middle Name",
+            "Last Name",
+            "DOB",
+            "Age",
+            "Hair",
+            "Eyes",
+            "Race",
+            "Sex",
+            "Height",
+            "Weight",
+            "Street",
+            "City",
+            "State",
+            "Zipcode",
+            "Special Bracelet ID",
+            "Organization",
+            "Record Type",
+            "Picture Date",
+            "Age in Picture",
+            "Photo Path",
+        ]
+        self.results_table.setColumnCount(len(column_headers))
+        self.results_table.setHorizontalHeaderLabels(column_headers)
         main_layout.addWidget(self.results_table)
 
         # Connect Buttons
@@ -105,6 +127,21 @@ class MainWindow(QMainWindow):
         # Shortcut to reveal hidden buttons
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.reveal_hidden_buttons)
+
+    def create_menu_bar(self):
+        # Get the native menu bar of QMainWindow
+        menu_bar = self.menuBar()
+
+        # Create the main menus
+        file_menu = menu_bar.addMenu("&File")
+        file_menu.addAction("SOS")
+        utilities_menu = menu_bar.addMenu("&Utilities")
+        utilities_menu.addAction("Edit")
+        help_menu = menu_bar.addMenu("&Help")
+        help_menu.addAction("Contact")
+
+        # Add a test action
+        file_menu.addAction("Exit").triggered.connect(self.close)
 
     def reveal_hidden_buttons(self, position):
         modifiers = QApplication.keyboardModifiers()
@@ -147,6 +184,7 @@ class MainWindow(QMainWindow):
 # Function to run the app
 def run_app():
     app = QApplication([])
+    app.setStyle("Fusion")
     window = MainWindow()
     window.show()
     app.exec()
