@@ -31,30 +31,33 @@ class AddPersonWindow(QWidget):
         form_layout.setVerticalSpacing(15)
 
         # Form Fields
+        ## Row 0
         self.name_to_call_me = QLineEdit()
         form_layout.addWidget(QLabel("Name to Call Me:"), 0, 0)
-        form_layout.addWidget(self.name_to_call_me, 0, 1, 1, 1)
+        form_layout.addWidget(self.name_to_call_me, 0, 1, 1, 2)
 
         self.first_name = QLineEdit()
-        form_layout.addWidget(QLabel("First Name:"), 1, 0)
-        form_layout.addWidget(self.first_name, 1, 1)
+        form_layout.addWidget(QLabel("First Name:"), 0, 3, alignment=Qt.AlignRight)
+        form_layout.addWidget(self.first_name, 0, 4, 1, 2)
 
+        ## Row 1
         self.middle_name = QLineEdit()
-        form_layout.addWidget(QLabel("Middle Name:"), 1, 2)
-        form_layout.addWidget(self.middle_name, 1, 3)
+        form_layout.addWidget(QLabel("Middle Name:"), 1, 0)
+        form_layout.addWidget(self.middle_name, 1, 1, 1, 2)
 
         self.last_name = QLineEdit()
-        form_layout.addWidget(QLabel("Last Name:"), 1, 4)
-        form_layout.addWidget(self.last_name, 1, 5)
+        form_layout.addWidget(QLabel("Last Name:"), 1, 3, alignment=Qt.AlignRight)
+        form_layout.addWidget(self.last_name, 1, 4, 1, 2)
 
+        ## Row 2
         self.dob = QLineEdit()
         self.dob.setPlaceholderText("YYYY-MM-DD")
         form_layout.addWidget(QLabel("Date of Birth:"), 2, 0)
-        form_layout.addWidget(self.dob, 2, 1)
+        form_layout.addWidget(self.dob, 2, 1, 1, 2)
 
         self.age = QLineEdit()
-        form_layout.addWidget(QLabel("Age:"), 2, 2)
-        form_layout.addWidget(self.age, 2, 3)
+        form_layout.addWidget(QLabel("Age:"), 2, 3, alignment=Qt.AlignRight)
+        form_layout.addWidget(self.age, 2, 4, 1, 2)
 
         self.hair = QComboBox()
         self.hair.addItems(
@@ -250,6 +253,8 @@ class AddPersonWindow(QWidget):
             "eyes": self.eyes.currentText(),
             "race": self.race.currentText(),
             "sex": self.sex.currentText(),
+            "height": self.height.text(),
+            "weight": self.weight.text(),
             "street": self.street.text(),
             "city": self.city.text(),
             "state": self.state.currentText(),
