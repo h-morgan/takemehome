@@ -1,9 +1,25 @@
 import sqlite3
 from loguru import logger
+import os
+import appdirs
+
+APP_NAME = "Take Me Home"
+db_dir = appdirs.user_data_dir(APP_NAME)  # Resolves to a system-specific directory
+os.makedirs(db_dir, exist_ok=True)  # Ensure the directory exists
+db_path = os.path.join(db_dir, "people.db")  # Store DB here
+
+logger.debug(f"Database path: {db_path}")
+
+# Check if the database exists, if not, create it
+if not os.path.exists(db_path):
+    # Create a connection to the SQLite database (it will be created if it doesn't exist)
+    conn = sqlite3.connect(db_path)
+    # You could also create tables or perform other setup tasks here
+    conn.close()
 
 
 def init_db():
-    conn = sqlite3.connect("people.db")
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     # Desired schema for the "people" table
