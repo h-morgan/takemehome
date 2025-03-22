@@ -13,10 +13,16 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QTabWidget,
+    QMenuBar,
 )
+from PySide6.QtGui import QIcon, QGuiApplication
 from PySide6.QtCore import Qt
 import takemehome.database as db
 from takemehome.ui.add_person import AddPersonWindow
+import sys
+
+# global, used for window and app icons
+ICON_PATH = "takemehome/img/home.png"
 
 
 class MainWindow(QMainWindow):
@@ -26,6 +32,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Take Me Home")
         self.setGeometry(100, 100, 800, 600)
 
+        # Set the window icon
+        self.setWindowIcon(QIcon(ICON_PATH))
+
+        self.menubar = QMenuBar()
         self.create_menu_bar()
 
         # Central Widget
@@ -42,36 +52,6 @@ class MainWindow(QMainWindow):
 
         # Create Tabs
         self.create_tabs()
-
-        # Search Area
-        search_layout = QHBoxLayout()
-
-        self.dob_field = QLineEdit()
-        self.dob_field.setPlaceholderText("YYYY-MM-DD")
-        search_layout.addWidget(QLabel("Date of Birth:"))
-        search_layout.addWidget(self.dob_field)
-
-        self.race_field = QComboBox()
-        self.race_field.addItems(["", "White", "Black", "Asian", "Hispanic", "Other"])
-        search_layout.addWidget(QLabel("Race:"))
-        search_layout.addWidget(self.race_field)
-
-        self.sex_field = QComboBox()
-        self.sex_field.addItems(["", "Male", "Female"])
-        search_layout.addWidget(QLabel("Sex:"))
-        search_layout.addWidget(self.sex_field)
-
-        self.hair_field = QLineEdit()
-        self.hair_field.setPlaceholderText("Hair")
-        search_layout.addWidget(QLabel("Hair:"))
-        search_layout.addWidget(self.hair_field)
-
-        self.eyes_field = QLineEdit()
-        self.eyes_field.setPlaceholderText("Eyes")
-        search_layout.addWidget(QLabel("Eyes:"))
-        search_layout.addWidget(self.eyes_field)
-
-        main_layout.addLayout(search_layout)
 
         # Advanced Search Checkbox
         self.advanced_search_checkbox = QCheckBox("Advanced Search Enabled")
@@ -129,24 +109,111 @@ class MainWindow(QMainWindow):
         self.customContextMenuRequested.connect(self.reveal_hidden_buttons)
 
     def create_menu_bar(self):
-        # Get the native menu bar of QMainWindow
-        menu_bar = self.menuBar()
+        file_menu = self.menubar.addMenu("File")
+        open_action = file_menu.addAction("Storage")
 
-        # Create the main menus
-        file_menu = menu_bar.addMenu("&File")
-        file_menu.addAction("SOS")
-        utilities_menu = menu_bar.addMenu("&Utilities")
-        utilities_menu.addAction("Edit")
-        help_menu = menu_bar.addMenu("&Help")
-        help_menu.addAction("Contact")
+        util_menu = self.menubar.addMenu("Utilities")
+        print_action = util_menu.addAction("Print list")
 
-        # Add a test action
-        file_menu.addAction("Exit").triggered.connect(self.close)
+        help_menu = self.menubar.addMenu("More")
+        about_action = help_menu.addAction("Take Me Home")
 
     def reveal_hidden_buttons(self, position):
         modifiers = QApplication.keyboardModifiers()
         if modifiers == (Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier):
             self.add_button.setVisible(True)
+
+    def create_tabs(self):
+        # Demographics Tab
+        demographics_tab = QWidget()
+        demographics_layout = QVBoxLayout()
+        demographics_tab.setLayout(demographics_layout)
+
+        self.dob_field = QLineEdit()
+        self.dob_field.setPlaceholderText("YYYY-MM-DD")
+        demographics_layout.addWidget(QLabel("Date of Birth:"))
+        demographics_layout.addWidget(self.dob_field)
+
+        self.race_field = QComboBox()
+        self.race_field.addItems(["", "White", "Black", "Asian", "Hispanic", "Other"])
+        demographics_layout.addWidget(QLabel("Race:"))
+        demographics_layout.addWidget(self.race_field)
+
+        self.sex_field = QComboBox()
+        self.sex_field.addItems(["", "Male", "Female"])
+        demographics_layout.addWidget(QLabel("Sex:"))
+        demographics_layout.addWidget(self.sex_field)
+
+        self.hair_field = QLineEdit()
+        self.hair_field.setPlaceholderText("Hair")
+        demographics_layout.addWidget(QLabel("Hair:"))
+        demographics_layout.addWidget(self.hair_field)
+
+        self.eyes_field = QLineEdit()
+        self.eyes_field.setPlaceholderText("Eyes")
+        demographics_layout.addWidget(QLabel("Eyes:"))
+        demographics_layout.addWidget(self.eyes_field)
+
+        # Name Tab
+        name_tab = QWidget()
+        name_layout = QHBoxLayout()
+        name_tab.setLayout(name_layout)
+
+        self.first_name_field = QLineEdit()
+        self.first_name_field.setPlaceholderText("First Name")
+        name_layout.addWidget(QLabel("First Name:"))
+        name_layout.addWidget(self.first_name_field)
+
+        self.last_name_field = QLineEdit()
+        self.last_name_field.setPlaceholderText("Last Name")
+        name_layout.addWidget(QLabel("Last Name:"))
+        name_layout.addWidget(self.last_name_field)
+
+        self.nickname_field = QLineEdit()
+        self.nickname_field.setPlaceholderText("Name to Call Me")
+        name_layout.addWidget(QLabel("Name to Call Me:"))
+        name_layout.addWidget(self.nickname_field)
+
+        # Type/Organizations Tab
+        type_org_tab = QWidget()
+        type_org_layout = QHBoxLayout()
+        type_org_tab.setLayout(type_org_layout)
+
+        self.record_type_field = QLineEdit()
+        self.record_type_field.setPlaceholderText("Record Type")
+        type_org_layout.addWidget(QLabel("Record Type:"))
+        type_org_layout.addWidget(self.record_type_field)
+
+        self.organization_field = QLineEdit()
+        self.organization_field.setPlaceholderText("Organization")
+        type_org_layout.addWidget(QLabel("Organization:"))
+        type_org_layout.addWidget(self.organization_field)
+
+        # Contact Info Tab
+        contact_tab = QWidget()
+        contact_layout = QHBoxLayout()
+        contact_tab.setLayout(contact_layout)
+
+        self.phone_field = QLineEdit()
+        self.phone_field.setPlaceholderText("Phone")
+        contact_layout.addWidget(QLabel("Phone:"))
+        contact_layout.addWidget(self.phone_field)
+
+        self.email_field = QLineEdit()
+        self.email_field.setPlaceholderText("Email")
+        contact_layout.addWidget(QLabel("Email:"))
+        contact_layout.addWidget(self.email_field)
+
+        self.address_field = QLineEdit()
+        self.address_field.setPlaceholderText("Address")
+        contact_layout.addWidget(QLabel("Address:"))
+        contact_layout.addWidget(self.address_field)
+
+        # Add Tabs to TabWidget
+        self.tab_widget.addTab(demographics_tab, "Demographics")
+        self.tab_widget.addTab(name_tab, "Name")
+        self.tab_widget.addTab(type_org_tab, "Type/Organizations")
+        self.tab_widget.addTab(contact_tab, "Contact Info")
 
     def open_add_person_window(self):
         self.add_window = AddPersonWindow()
@@ -184,7 +251,15 @@ class MainWindow(QMainWindow):
 # Function to run the app
 def run_app():
     app = QApplication([])
-    app.setStyle("Fusion")
+    # app.setStyle("Fusion")
+
+    # Set the application name (changes the menu bar name)
+    QGuiApplication.setApplicationDisplayName("Take Me Home")
+    QGuiApplication.setApplicationName("Take Me Home")
+    QGuiApplication.setDesktopFileName("take-me-home")
+
+    # Set the application icon that appears in the dock
+    app.setWindowIcon(QIcon(ICON_PATH))
     window = MainWindow()
     window.show()
     app.exec()
