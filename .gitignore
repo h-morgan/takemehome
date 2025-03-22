@@ -3,3 +3,7 @@
 people.db
 photos/
 photos/*
+build/
+dist/
+*.spec
+*.DS_STORE
