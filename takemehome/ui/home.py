@@ -19,7 +19,8 @@ from PySide6.QtGui import QIcon, QGuiApplication
 from PySide6.QtCore import Qt
 import takemehome.database as db
 from takemehome.ui.add_person import AddPersonWindow
-import sys
+from takemehome import inputs
+from loguru import logger
 
 # global, used for window and app icons
 ICON_PATH = "takemehome/img/home.png"
@@ -94,10 +95,13 @@ class MainWindow(QMainWindow):
             "Picture Date",
             "Age in Picture",
             "Photo Path",
+            "ID",
         ]
         self.results_table.setColumnCount(len(column_headers))
         self.results_table.setHorizontalHeaderLabels(column_headers)
         main_layout.addWidget(self.results_table)
+        # Connect the cellClicked signal to a function
+        self.results_table.cellClicked.connect(self.on_table_cell_clicked)
 
         # Connect Buttons
         self.search_button.clicked.connect(self.search_people)
@@ -110,10 +114,12 @@ class MainWindow(QMainWindow):
 
     def create_menu_bar(self):
         file_menu = self.menubar.addMenu("File")
-        open_action = file_menu.addAction("Storage")
+        open_action = file_menu.addAction("Storage settings")
 
         util_menu = self.menubar.addMenu("Utilities")
         print_action = util_menu.addAction("Print list")
+        import_action = util_menu.addAction("Import data")
+        export_action = util_menu.addAction("Export data")
 
         help_menu = self.menubar.addMenu("More")
         about_action = help_menu.addAction("Take Me Home")
@@ -135,22 +141,22 @@ class MainWindow(QMainWindow):
         demographics_layout.addWidget(self.dob_field)
 
         self.race_field = QComboBox()
-        self.race_field.addItems(["", "White", "Black", "Asian", "Hispanic", "Other"])
+        self.race_field.addItems(inputs.RACES)
         demographics_layout.addWidget(QLabel("Race:"))
         demographics_layout.addWidget(self.race_field)
 
         self.sex_field = QComboBox()
-        self.sex_field.addItems(["", "Male", "Female"])
+        self.sex_field.addItems(inputs.SEXES)
         demographics_layout.addWidget(QLabel("Sex:"))
         demographics_layout.addWidget(self.sex_field)
 
-        self.hair_field = QLineEdit()
-        self.hair_field.setPlaceholderText("Hair")
+        self.hair_field = QComboBox()
+        self.hair_field.addItems(inputs.HAIR_COLORS)
         demographics_layout.addWidget(QLabel("Hair:"))
         demographics_layout.addWidget(self.hair_field)
 
-        self.eyes_field = QLineEdit()
-        self.eyes_field.setPlaceholderText("Eyes")
+        self.eyes_field = QComboBox()
+        self.eyes_field.addItems(inputs.EYE_COLORS)
         demographics_layout.addWidget(QLabel("Eyes:"))
         demographics_layout.addWidget(self.eyes_field)
 
@@ -219,15 +225,99 @@ class MainWindow(QMainWindow):
         self.add_window = AddPersonWindow()
         self.add_window.show()
 
+    def on_table_cell_clicked(self, row, column):
+
+        logger.debug(f"Row {row} clicked. Opening AddPerson window with data populated")
+        # Get the data of the clicked row
+        name_to_call_me = self.results_table.item(row, 0)
+        first_name = self.results_table.item(row, 1)
+        middle_name = self.results_table.item(row, 2)
+        last_name = self.results_table.item(row, 3)
+        dob = self.results_table.item(row, 4)
+        age = self.results_table.item(row, 5)
+        hair = self.results_table.item(row, 6)
+        eyes = self.results_table.item(row, 7)
+        race = self.results_table.item(row, 8)
+        sex = self.results_table.item(row, 9)
+        height = self.results_table.item(row, 10)
+        weight = self.results_table.item(row, 11)
+        street = self.results_table.item(row, 12)
+        city = self.results_table.item(row, 13)
+        state = self.results_table.item(row, 14)
+        zipcode = self.results_table.item(row, 15)
+        bracelet = self.results_table.item(row, 16)
+        org = self.results_table.item(row, 17)
+        record_type = self.results_table.item(row, 18)
+        pic_date = self.results_table.item(row, 19)
+        age_in_pic = self.results_table.item(row, 20)
+        photo_path = self.results_table.item(row, 21)
+        db_id = self.results_table.item(row, 22)
+
+        person_data = {
+            "name_to_call_me": name_to_call_me.text(),
+            "first_name": first_name.text(),
+            "middle_name": middle_name.text(),
+            "last_name": last_name.text(),
+            "dob": dob.text(),
+            "age": age.text(),
+            "hair": hair.text(),
+            "eyes": eyes.text(),
+            "race": race.text(),
+            "sex": sex.text(),
+            "height": height.text(),
+            "weight": weight.text(),
+            "street": street.text(),
+            "city": city.text(),
+            "state": state.text(),
+            "zipcode": zipcode.text(),
+            "bracelet": bracelet.text(),
+            "org": org.text() if record_type is not None else "",
+            "record_type": record_type.text() if record_type is not None else "",
+            "pic_date": pic_date.text() if pic_date is not None else "",
+            "age_in_pic": age_in_pic.text() if age_in_pic is not None else "",
+            "photo_path": photo_path.text() if photo_path is not None else "",
+            "db_id": db_id.text(),  # required
+        }
+
+        # Open the AddPersonWindow and pass the selected person data
+        self.add_person_window = AddPersonWindow(person_data)
+        self.add_person_window.show()
+
     def search_people(self):
 
         # Get search parameters
+        # demographics
         dob = self.dob_field.text()
-        hair = self.hair_field.text()
-        eyes = self.eyes_field.text()
+        race = self.race_field.currentText()
+        sex = self.sex_field.currentText()
+        hair = self.hair_field.currentText()
+        eyes = self.eyes_field.currentText()
+
+        # name
+        first_name = self.first_name_field.text()
+        last_name = self.last_name_field.text()
+        name_to_call = self.nickname_field.text()
+
+        # type/org
+        record_type = self.record_type_field.text()
+        organization = self.organization_field.text()
+
+        # contact info
+        phone = self.phone_field.text()
+        email = self.email_field.text()
+        addr = self.address_field.text()
 
         # Fetch results
-        results = db.search_people(dob=dob, hair=hair, eyes=eyes)
+        results = db.search_people(
+            dob=dob,
+            race=race,
+            sex=sex,
+            nickname=name_to_call,
+            first_name=first_name,
+            last_name=last_name,
+            hair=hair,
+            eyes=eyes,
+        )
         print(results)
 
         # Populate the table
