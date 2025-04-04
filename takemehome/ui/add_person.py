@@ -14,11 +14,13 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 import takemehome.database as db
+from takemehome import inputs
 import shutil
+from loguru import logger
 
 
 class AddPersonWindow(QWidget):
-    def __init__(self):
+    def __init__(self, person_data=None):
         super().__init__()
 
         self.setWindowTitle("Add New Person")
@@ -60,24 +62,22 @@ class AddPersonWindow(QWidget):
         form_layout.addWidget(self.age, 2, 4, 1, 2)
 
         self.hair = QComboBox()
-        self.hair.addItems(
-            ["", "Black", "Brown", "Blonde", "Red", "Gray", "White", "Other"]
-        )
+        self.hair.addItems(inputs.HAIR_COLORS)
         form_layout.addWidget(QLabel("Hair:"), 3, 0)
         form_layout.addWidget(self.hair, 3, 1)
 
         self.eyes = QComboBox()
-        self.eyes.addItems(["", "Brown", "Blue", "Green", "Hazel", "Gray", "Other"])
+        self.eyes.addItems(inputs.EYE_COLORS)
         form_layout.addWidget(QLabel("Eyes:"), 3, 2)
         form_layout.addWidget(self.eyes, 3, 3)
 
         self.race = QComboBox()
-        self.race.addItems(["", "White", "Black", "Asian", "Hispanic", "Other"])
+        self.race.addItems(inputs.RACES)
         form_layout.addWidget(QLabel("Race:"), 4, 0)
         form_layout.addWidget(self.race, 4, 1)
 
         self.sex = QComboBox()
-        self.sex.addItems(["", "Male", "Female"])
+        self.sex.addItems(inputs.SEXES)
         form_layout.addWidget(QLabel("Sex:"), 4, 2)
         form_layout.addWidget(self.sex, 4, 3)
 
@@ -101,61 +101,7 @@ class AddPersonWindow(QWidget):
         form_layout.addWidget(self.city, 7, 1)
 
         self.state = QComboBox()
-        self.state.addItems(
-            [
-                "",
-                "AL",
-                "AK",
-                "AZ",
-                "AR",
-                "CA",
-                "CO",
-                "CT",
-                "DE",
-                "FL",
-                "GA",
-                "HI",
-                "ID",
-                "IL",
-                "IN",
-                "IA",
-                "KS",
-                "KY",
-                "LA",
-                "ME",
-                "MD",
-                "MA",
-                "MI",
-                "MN",
-                "MS",
-                "MO",
-                "MT",
-                "NE",
-                "NV",
-                "NH",
-                "NJ",
-                "NM",
-                "NY",
-                "NC",
-                "ND",
-                "OH",
-                "OK",
-                "OR",
-                "PA",
-                "RI",
-                "SC",
-                "SD",
-                "TN",
-                "TX",
-                "UT",
-                "VT",
-                "VA",
-                "WA",
-                "WV",
-                "WI",
-                "WY",
-            ]
-        )
+        self.state.addItems(inputs.STATE_CODES)
         form_layout.addWidget(QLabel("State:"), 7, 2)
         form_layout.addWidget(self.state, 7, 3)
 
@@ -207,6 +153,9 @@ class AddPersonWindow(QWidget):
         self.photo_thumbnail.setFixedSize(100, 100)  # Set size for thumbnail
         form_layout.addWidget(self.photo_thumbnail, 14, 2, 2, 2)
 
+        if person_data:
+            self.populate_existing_data(person_data)
+
         layout.addLayout(form_layout)
 
         # Save Button
@@ -215,6 +164,41 @@ class AddPersonWindow(QWidget):
         layout.addWidget(self.save_button)
 
         self.setLayout(layout)
+
+    def populate_existing_data(self, person_data):
+        logger.debug(f"Populating existing person data: {person_data}")
+
+        # setting existing data - straight text fields use 'setText' method
+        # dropdown fields use 'setCurrentText' method
+        self.name_to_call_me.setText(person_data.get("name_to_call_me"))
+        self.first_name.setText(person_data.get("first_name"))
+        self.middle_name.setText(person_data.get("middle_name"))
+        self.last_name.setText(person_data.get("last_name"))
+        self.dob.setText(person_data.get("dob"))
+        self.age.setText(person_data.get("age"))
+        self.hair.setCurrentText(person_data.get("hair"))
+        self.eyes.setCurrentText(person_data.get("eyes"))
+        self.race.setCurrentText(person_data.get("race"))
+        self.sex.setCurrentText(person_data.get("sex"))
+        self.height.setText(person_data.get("height"))
+        self.weight.setText(person_data.get("weight"))
+        self.street.setText(person_data.get("street"))
+        self.city.setText(person_data.get("city"))
+        self.state.setCurrentText(person_data.get("state"))
+        self.zipcode.setText(person_data.get("zipcode"))
+        self.special_bracelet_id.setText(person_data.get("bracelet"))
+        self.organization.setText(person_data.get("org"))
+        self.record_type.setText(person_data.get("record_type"))
+        self.picture_date.setText(person_data.get("pic_date"))
+        self.age_in_picture.setText(person_data.get("age_in_pic"))
+        self.photo_path.setText(person_data.get("photo_path"))
+
+        # display thumbnail with photo path
+        self.display_thumbnail(person_data.get("photo_path"))
+
+        # TODO - make "save" button turn into "update" button if we're here
+        # "save" will trigger a new record to get written to the db
+        logger.debug(f"DB ID {person_data.get('db_id')}")
 
     def upload_photo(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -232,12 +216,14 @@ class AddPersonWindow(QWidget):
             shutil.copy(file_path, new_path)
 
             self.photo_path.setText(new_path)
+            self.display_thumbnail(new_path)
 
-            # Display the image as a thumbnail
-            pixmap = QPixmap(new_path)
-            self.photo_thumbnail.setPixmap(
-                pixmap.scaled(100, 100)
-            )  # Scale image to fit the QLabel
+    def display_thumbnail(self, photo_path):
+        # Display the image as a thumbnail
+        pixmap = QPixmap(photo_path)
+        self.photo_thumbnail.setPixmap(
+            pixmap.scaled(100, 100)
+        )  # Scale image to fit the QLabel
 
     def save_person(self):
 
