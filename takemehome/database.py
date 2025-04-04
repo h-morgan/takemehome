@@ -94,12 +94,22 @@ def add_person(person_data):
     conn.close()
 
 
-def search_people(dob=None, race=None, sex=None, hair=None, eyes=None):
+def search_people(
+    dob=None,
+    nickname=None,
+    first_name=None,
+    last_name=None,
+    age=None,
+    race=None,
+    sex=None,
+    hair=None,
+    eyes=None,
+):
     conn = sqlite3.connect("people.db")
     cursor = conn.cursor()
 
     query = """
-    SELECT name_to_call_me, first_name, middle_name, last_name, dob, age, hair, eyes, race, sex, height, weight, street, city, state, zipcode, special_bracelet_id, organization, record_type, picture_date, age_in_picture, photo_path
+    SELECT name_to_call_me, first_name, middle_name, last_name, dob, age, hair, eyes, race, sex, height, weight, street, city, state, zipcode, special_bracelet_id, organization, record_type, picture_date, age_in_picture, photo_path, id
     FROM people
     where first_name != ''
     """
@@ -108,6 +118,18 @@ def search_people(dob=None, race=None, sex=None, hair=None, eyes=None):
     if dob:
         query += " AND dob = ?"
         params.append(dob)
+    if nickname:
+        query += "AND name_to_call_me = ?"
+        params.append(nickname)
+    if first_name:
+        query += "AND first_name = ?"
+        params.append(first_name)
+    if last_name:
+        query += "AND last_name = ?"
+        params.append(last_name)
+    if age:
+        query += "AND age = ?"
+        params.append(age)
     if race:
         query += " AND race = ?"
         params.append(race)
